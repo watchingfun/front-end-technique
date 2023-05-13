@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剪切板访问</title>
+</head>
+<!-- https://github.com/zenorocha/clipboard.js -->
+<script src="./clipboard.min.js"></script>
+
+<body>
+    <!-- clipboard.js 库复制 原理为使用document.execCommand('copy') -->
+    <button class="btn" data-clipboard-text="Just because you can doesn't mean you should — clipboard.js">
+        Copy to clipboard
+    </button>
+    <!-- https://developer.mozilla.org/zh-CN/docs/Web/API/Clipboard/writeText -->
+    <button onclick="navigatorCopy()">
+        Copy to clipboard2
+    </button>
+</body>
+<script>
+    new ClipboardJS('.btn')
+    
+    function navigatorCopy(){
+        navigator.clipboard.writeText('navigatorCopy')
+    }
+</script>
+
+</html>

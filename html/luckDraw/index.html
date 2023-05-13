@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>九宫格抽奖</title>
+</head>
+<script src="./luckDraw.js"></script>
+<style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 10px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 50px;
+    }
+
+    .cell {
+        padding: 0;
+        text-align: center;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: dodgerblue;
+        color: white;
+    }
+
+    .glow {
+        box-shadow: 0 0 10px #f7d51d, 0 0 40px #f7d51d;
+        border: 2px solid #ffee10;
+        text-shadow: 0 0 5px #ffee10;
+        margin-left: -2px;
+        margin-top: -2px;
+    }
+</style>
+
+<body>
+    <div class="container" id="draw_container">
+        <label>中奖格子</label><input value="1">
+        <button id="btn1" onclick="drawPlay()">开始抽奖</button>
+        <button id="btn2" onclick="switchPlay()">切换抽奖转盘</button>
+        <div class="grid">
+
+        </div>
+    </div>
+</body>
+
+<script>
+    let drawPlay;
+    let drawPlay2;
+    let mode = 1;
+    let prizeList = [
+        { id: 1 },
+        { id: 2 },
+        { id: 3 },
+        { id: 4 },
+        { id: 5 },
+        { id: 6 },
+        { id: 7 },
+        { id: 8 },
+        { id: 9 },
+    ];
+    let grid = document.getElementsByClassName("grid")[0]
+
+    function switchPlay() {
+        grid.innerHTML = '';
+        mode = mode === 1 ? 2 : 1;
+        if (mode === 2) {
+            prizeList = prizeList.slice(0, -1)
+            for (let index = 1; index < 9; index++) {
+                if (index === 5) {
+                    grid.insertAdjacentHTML('beforeend', `<div class="cell" style="grid-column-start:3">${index}</div>`)
+                } else {
+                    grid.insertAdjacentHTML('beforeend', `<div class="cell">${index}</div>`)
+                }
+            }
+        } else {
+            prizeList.push({ id: 9 })
+            for (let index = 1; index < 10; index++) {
+                grid.insertAdjacentHTML('beforeend', `<div class="cell">${index}</div>`)
+            }
+        }
+    }
+
+    switchPlay();
+
+
+
+
+    let input = document.getElementsByTagName("input")[0]
+    let btn1 = document.getElementById("btn1")
+    let btn2 = document.getElementById("btn2")
+
+    let lastCelll = null;
+
+    // 旋转规则数组
+    const rotateDir = [
+        { index: 0, next: 1 },
+        { index: 1, next: 2 },
+        { index: 2, next: 3 },
+        { index: 3, next: 4 },
+        { index: 4, next: 5 },
+        { index: 5, next: 6 },
+        { index: 6, next: 7 },
+        { index: 7, next: 8 },
+        { index: 8, next: 0 },
+    ]
+    const rotateDir2 = [
+        { index: 0, next: 1 },
+        { index: 1, next: 2 },
+        { index: 2, next: 4 },
+        { index: 4, next: 7 },
+        { index: 7, next: 6 },
+        { index: 6, next: 5 },
+        { index: 5, next: 3 },
+        { index: 3, next: 0 },
+    ]
+
+
+
+
+    drawPlay = () => {
+        const cells = document.querySelectorAll('.cell');
+        // 初始化抽奖, 3代表圈数， 8代表速度，也代表时间片的个数
+        const luckDrawFn = new LuckDraw(prizeList, mode === 1 ? rotateDir : rotateDir2, 3, 8);
+        luckDrawFn.run(
+            input.value, //中奖id
+            params => { // 停留在当前格子的回调函数
+                let i = params.id - 1;
+                if (lastCelll) {
+                    lastCelll.classList.remove('glow')
+                }
+                cells[i].classList.add('glow');
+                lastCelll = cells[i];
+            },
+            params => { // 最终停止的回调函数
+                //最后转盘停止的地方，可以弹出奖励弹框或其他操作
+                setTimeout(() => {
+                    alert(input.value)
+                }, 100);
+
+            })
+    }
+
+</script>
+
+</html>

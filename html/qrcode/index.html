@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维码生成</title>
+</head>
+<!--https://github.com/soldair/node-qrcode-->
+<script src="./qrcode.js"></script>
+
+<body>
+    <input value="test" />
+    <button id="btn1">生成二维码</button>
+    <button id="btn2">生成二维码海报</button>
+    <button id="btn3">保存二维码海报</button>
+    <img />
+</body>
+<script>
+    let input = document.getElementsByTagName("input")[0];
+    let btn1 = document.getElementById("btn1");
+    let btn2 = document.getElementById("btn2");
+    let btn3 = document.getElementById("btn3");
+    let img = document.getElementsByTagName("img")[0];
+
+    btn1.addEventListener("click", async () => {
+        let qrDataUrl = await QRCode.toDataURL(input.value)
+        img.src = qrDataUrl
+    })
+    btn2.addEventListener("click", async () => {
+        let dataUrl = await jointUrlBase64(await QRCode.toDataURL(input.value), './background.jpg')
+        img.src = dataUrl
+    })
+    btn3.addEventListener("click", async () => {
+        let dataUrl = await jointUrlBase64(await QRCode.toDataURL(input.value), './background.jpg')
+        exportPNG(dataUrl, 'qrcode.jpg')
+    })
+
+
+    function exportPNG(base64Url, fileName) {
+        const MIME_TYPE = "image/jpg";
+        const dlLink = document.createElement('a');
+        dlLink.download = fileName;
+        dlLink.href = base64Url;
+        dlLink.dataset.downloadurl = [MIME_TYPE, dlLink.download, dlLink.href].join(':');
+        document.body.appendChild(dlLink);
+        dlLink.click();
+        document.body.removeChild(dlLink);
+    }
+
+    async function jointUrlBase64(qrcodeUrl, postUrl) {
+        return new Promise(resolve => {
+            let canvas = document.createElement("canvas");
+            // canvas.width = 1242;
+            // canvas.height = 1500;
+            let backgroundImg = new Image();
+            backgroundImg.src = postUrl; //背景图片 你自己本地的图片或者在线图片
+            backgroundImg.crossOrigin = 'Anonymous';
+            backgroundImg.onload = function () {
+                console.log('img size: ', backgroundImg.width, backgroundImg.height)
+                canvas.width = backgroundImg.width / 20;
+                canvas.height = backgroundImg.height / 20;
+                let context = canvas.getContext("2d");
+                context.rect(0, 0, canvas.width, canvas.height);
+                context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+                let qrCodeImg = new Image();
+                qrCodeImg.src = qrcodeUrl; //二维码图片地址
+                qrCodeImg.crossOrigin = 'Anonymous';
+                qrCodeImg.onload = function () {
+                    //调整二维码在背景图内的坐标位置
+                    context.drawImage(qrCodeImg, canvas.width / 2, canvas.height / 2, canvas.width / 3, canvas.width / 3);
+                    let dataUrl = canvas.toDataURL("image/png");
+                    resolve(dataUrl)
+                }
+            }
+        })
+    }
+</script>
+
+</html>
