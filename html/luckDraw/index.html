@@ -38,10 +38,7 @@
 
     .glow {
         box-shadow: 0 0 10px #f7d51d, 0 0 40px #f7d51d;
-        border: 2px solid #ffee10;
-        text-shadow: 0 0 5px #ffee10;
-        margin-left: -2px;
-        margin-top: -2px;
+        outline: 4px solid #ffee10;
     }
 </style>
 
@@ -131,6 +128,7 @@
 
 
     drawPlay = () => {
+        btn1.disabled = true
         const cells = document.querySelectorAll('.cell');
         // 初始化抽奖, 3代表圈数， 8代表速度，也代表时间片的个数
         const luckDrawFn = new LuckDraw(prizeList, mode === 1 ? rotateDir : rotateDir2, 3, 8);
@@ -149,7 +147,7 @@
                 setTimeout(() => {
                     alert(input.value)
                 }, 100);
-
+                btn1.disabled = false
             })
     }
 
